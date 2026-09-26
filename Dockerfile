@@ -30,7 +30,8 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
     && printf '%s\n' 'ServerTokens Prod' 'ServerSignature Off' > /etc/apache2/conf-available/security-hardening.conf \
     && a2enconf security-hardening
 
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+COPY --from=docker.io/composer/composer:2-bin /composer /usr/local/bin/composer
+
 
 # Hashed game assets are content-addressed: a changed file receives a new
 # URL. Let browsers and the legacy Flash runtime keep those icons locally,
