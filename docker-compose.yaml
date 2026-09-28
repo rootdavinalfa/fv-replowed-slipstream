@@ -5,6 +5,15 @@ services:
       - no-new-privileges:true
     build:
       context: .
+      args:
+        # Browser-facing Reverb values baked into the Vite bundle at build time.
+        # Change these in .env and rebuild; running .env changes alone do not
+        # affect an already-built bundle.
+        VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY-}
+        VITE_REVERB_HOST: ${VITE_REVERB_HOST-play.website.com}
+        VITE_REVERB_PORT: ${VITE_REVERB_PORT-443}
+        VITE_REVERB_SCHEME: ${VITE_REVERB_SCHEME-https}
+        VITE_REVERB_PATH: ${VITE_REVERB_PATH-/ws}
     image: fv-replowed-slipstream:local
     env_file:
       - .env
@@ -31,6 +40,11 @@ services:
       DB_DATABASE: ${DB_DATABASE:-farmvilledb}
       DB_USERNAME: ${DB_USERNAME:-fv_usr}
       DB_PASSWORD: ${DB_PASSWORD:-fv_pass}
+      # Publish chat events to the reverb container over the compose network.
+      # Browsers use the VITE_REVERB_* values baked into the bundle instead.
+      REVERB_HOST: reverb
+      REVERB_PORT: 8080
+      REVERB_SCHEME: http
     networks:
       default:
         aliases:
@@ -76,6 +90,8 @@ services:
       MARIADB_ROOT_PASSWORD: ${DB_PASSWORD:-fv_pass}
       MARIADB_USER: ${DB_USERNAME:-fv_usr}
       MARIADB_PASSWORD: ${DB_PASSWORD:-fv_pass}
+    ports:
+      - "3333:3306"
     volumes:
       - dbdata:/var/lib/mysql
     healthcheck:

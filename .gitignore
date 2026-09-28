@@ -34,6 +34,7 @@ _ide_helper*.php
 .phpstorm.meta.php
 
 # Local recovery and analysis artifacts
+/.codebase-memory/
 /backups
 /.tmp/
 /.tmp-*

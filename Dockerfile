@@ -153,6 +153,20 @@ RUN if [ -d public/farmville/xml/gz/v855038 ] && [ ! -e public/farmville/xml/gz/
         ln -s v855038 public/farmville/xml/gz/v855038-expansions-v2; \
     fi
 
+# Browser-facing Reverb settings are baked into the Vite bundle at build time.
+# Compose passes these from .env as build args; the .env copied below is
+# .env.example, so runtime .env changes alone cannot update the bundle.
+ARG VITE_REVERB_APP_KEY=
+ARG VITE_REVERB_HOST=play.website.com
+ARG VITE_REVERB_PORT=443
+ARG VITE_REVERB_SCHEME=https
+ARG VITE_REVERB_PATH=/ws
+ENV VITE_REVERB_APP_KEY=${VITE_REVERB_APP_KEY} \
+    VITE_REVERB_HOST=${VITE_REVERB_HOST} \
+    VITE_REVERB_PORT=${VITE_REVERB_PORT} \
+    VITE_REVERB_SCHEME=${VITE_REVERB_SCHEME} \
+    VITE_REVERB_PATH=${VITE_REVERB_PATH}
+
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && cp .env.example .env \
     && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
