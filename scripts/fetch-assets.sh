@@ -72,12 +72,18 @@ run_dehasher() {
         exit 1
       }
       echo "Running the x86-64 FVDehasher in Docker on $machine_arch..."
-      docker run --rm --platform linux/amd64 \
-        --user "$(id -u):$(id -g)" \
-        -v "$CACHE_DIR:/work" \
-        -w /work \
-        ubuntu:24.04 \
-        "./$DEHASHER_FILE"
+      echo "Cache dir: $CACHE_DIR"
+      echo "Dehasher file: $DEHASHER_FILE"
+      #java -jar "$CACHE_DIR/$DEHASHER_FILE.jar"
+      podman run --rm --userns=keep-id -v "$CACHE_DIR:/work:Z" -w /work amazoncorretto:21.0.12-alpine3.24 java -jar "$DEHASHER_FILE.jar"
+      #podman run --rm --platform linux/amd64 --userns=keep-id -v "$CACHE_DIR:/work:Z" -w /work ubuntu:24.04 "./$DEHASHER_FILE"
+        #--user "$(id -u):$(id -g)" \
+        #--userns=keep-id \
+        #-v "$CACHE_DIR:/work:Z" \
+        #-w /work \
+        #ubuntu:24.04 \
+        #uname -m
+        #"./$DEHASHER_FILE"
       ;;
   esac
 }

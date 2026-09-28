@@ -9,17 +9,17 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:8000:80"
+      - "8000:80"
     volumes:
       # Keep the large immutable asset tree off the SD-backed repository.
       # Production sets FV_ASSETS_PATH to the mounted SSD; local development
       # keeps the existing relative-path default.
-      - ${FV_ASSETS_PATH:-./public/farmville/assets}:/var/www/html/public/farmville/assets
+      - ${FV_ASSETS_PATH:-./public/farmville/assets}:/var/www/html/public/farmville/assets:Z
       # Crash Busters reports must survive a web-container recreation.
-      - ./storage/logs:/var/www/html/storage/logs
+      - ./storage/logs:/var/www/html/storage/logs:Z
     command: >-
       /bin/sh -c 'if [ "${FV_ASSETS_REQUIRE_SENTINEL:-0}" = "1" ] && [ ! -f /var/www/html/public/farmville/assets/.ssd-assets-ready ]; then
-      echo "FV_ASSETS_PATH is not mounted or is incomplete" >&2; exit 1; fi; exec apache2-foreground'
+      echo "FV_ASSETS_PATH is not mounted or is incomplete" >&2; exit 1; fi; chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache; chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache; exec apache2-foreground'
     depends_on:
       database:
         condition: service_healthy
@@ -79,7 +79,11 @@ services:
     volumes:
       - dbdata:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$$MARIADB_ROOT_PASSWORD --silent"]
+      test:
+        [
+          "CMD-SHELL",
+          "mariadb-admin ping -h localhost -uroot -p$$MARIADB_ROOT_PASSWORD --silent",
+        ]
       interval: 2s
       timeout: 5s
       retries: 30
@@ -110,7 +114,7 @@ services:
       REVERB_PORT: 8080
       REVERB_SCHEME: http
     ports:
-      - "127.0.0.1:8080:8080"
+      - "8080:8080"
 
   scheduler:
     restart: unless-stopped
